@@ -1,0 +1,4 @@
+---
+- name: Installing run installer
+  become_user: oracle
+  command: "{{ installation_folder }}/database/runInstaller -silent -ignorePrereq -ignoreSysPrereqs -waitforcompletion -responseFile /tmp/{{ groupname }}_{{ version }}.rsp"

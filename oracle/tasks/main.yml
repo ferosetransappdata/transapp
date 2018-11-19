@@ -1,0 +1,66 @@
+
+- include: binary_files_check.yml
+  tags: binary files check
+
+###############################################
+
+- include: response_software_install.yml
+  tags: install oracle software only
+  when: files_exists_OI.stat.exists and files_exists_OI.stat.isdir
+
+################################################
+
+- include: netca_response.yml
+  tags: netca response validation
+  when: files_exists_OI.stat.exists and files_exists_OI.stat.isdir
+
+################################################
+
+- include: dbca_response.yml
+  tags: dbca response validation
+  when: files_exists_OI.stat.exists and files_exists_OI.stat.isdir
+
+################################################
+
+- name: looping
+  stat:
+    path: /u04/oracle/product/database/{{ version }}
+  register: files_exists_OH
+
+- debug:
+
+- include: runinstaller.yml
+  tags: invoke runinstaller
+  when: not files_exists_OH.stat.exists
+
+- name: files_exists_OH revalidation
+  stat:
+    path: /u04/oracle/product/database/{{ version }}
+  register: files_exists_OH
+
+################################################
+
+- name: netca looping
+  stat:
+    path: /u04/oracle/product/database/{{ version }}
+  register: files_exists_OH
+
+- debug:
+
+- include: netca_install.yml
+  tags: invoke netca
+  when: files_exists_OH.stat.exists
+
+###########################################
+
+- name: dbca looping
+  stat:
+    path: /u04/oracle/product/database/{{ version }}
+  register: files_exists_OH
+
+- debug:
+
+- include: dbca_databse.yml
+  tags: invoke netca
+  when: files_exists_OH.stat.exists
+

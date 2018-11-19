@@ -1,0 +1,5 @@
+--- # unzip setup
+- hosts: [11g] 
+  become: yes
+  roles:
+     - oracle

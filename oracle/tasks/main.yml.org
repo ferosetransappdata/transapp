@@ -1,0 +1,78 @@
+#- name: Extract installation files
+#  command: 'unzip {{ INSTALLATION_FOLDER }}/{{ item }} -d {{ INSTALLATION_FOLDER }}/'
+#  with_items: '{{ installer_archives }}'
+  
+- name: Generate the response file for software only installation
+  template: src={{ Version }}.rsp.j2  dest=/tmp/{{ Version }}.rsp
+
+#- name: Generate response Dbca
+#  template: src=dborclt2.rsp.j2 dest={{INSTALLATION_FOLDER}}/dborclt2.rsp.j2
+  
+
+#- name: Generate response Netaca
+#  template: src=netcatest.rsp.j2 dest={{INSTALLATION_FOLDER}}//netcatest.rsp.j2
+
+
+- name: Ensure parameters in response file
+  lineinfile:
+    path: /tmp/{{ Version }}.rsp
+    regexp: ^({{ item.name }})=
+    line: '{{ item.name }}={{ item.value }}'
+    backrefs: true
+    state: present
+  with_items:
+  - name: UNIX_USER
+    value: '{{ UNIX_USER }}'
+  - name: UNIX_GROUP_NAME
+    value: '{{ UNIX_GROUP_NAME }}'
+  - name: ORACLE_HOSTNAME
+    value: '{{ ORACLE_HOSTNAME }}'
+#  - name: "oracle.install.option"
+ #   value: '{{ oracle.install.option }}'
+  - name: INVENTORY_LOCATION
+    value: '{{ INVENTORY_LOCATION }}'
+  - name: ORACLE_HOME
+    value: '{{ ORACLE_HOME }}'
+  - name: ORACLE_BASE
+    value: '{{ ORACLE_BASE }}'
+
+#- name: Installing software
+#  become_user: oracle
+#  command: "{{ INSTALLATION_FOLDER }}/database/runInstaller -silent -ignorePrereq -ignoreSysPrereqs -waitforcompletion -responseFile /tmp/{{ Version }}.rsp"
+
+#- name: export ORACLE_HOME & PATH
+#  become_user: oracle
+#  action: shell '{{ ORACLE_HOME }}bin/dbca -silent -createDatabase  -templateName {{ ORACLE_HOME }}/assistants/dbca/templates/{{ TemplateName }} -gdbName {{ Group_DB }} -sid {{ Sid }} -sysPassword {{ SysPwd }} -systemPassword {{ SystemPwd }} -createAsContainerDatabase {{ Create_Conta_DB }} -emConfiguration {{ emCon }} -datafileDestination {{ DataFileDes }} -storageType {{ StoTyp }}  -sampleSchema {{ Sample_Schema }} -characterset {{ CharSet }} -memoryPercentage {{ MemPer }} -responseFile NO_VALUE -datafileJarLocation {{ ORACLE_HOME }}assistants/dbca/templates'
+
+- name: Install dbca
+  become_user: oracle
+  command: "{{ORACLE_HOME}}/bin/dbca -silent -responseFile {{INSTALLATION_FOLDER}}/dborclt2.rsp.j2"
+#
+#- name: Install netca
+#  become_user: oracle
+#  command: "{{ORACLE_HOME}}/bin/netca -silent -responseFile {{INSTALLATION_FOLDER}}/netcatest.rsp.j2"
+
+#- name: DELUSER
+#  become_user: oracle
+#  shell: "/home/oracle/a.sh"
+
+#- name: BKUP
+#  archive:
+#    path: "{{ORACLE_HOME}}"
+#    dest: /u02/bkup.tgz
+
+#- name: file unarchive
+#  become_user: oracle
+#  unarchive:
+#    src: p27726471_121020_Linux-x86-64.zip
+#    dest: /home/oracle
+#    remote_src: no
+
+#- name: Conflict detection
+#  become_user: oracle
+#  action: shell export ORACLE_HOME={{ ORACLE_HOME }};export PATH=$ORACLE_HOME/OPatch:$PATH; cd /home/oracle/27726471; {{ORACLE_HOME}}/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -ph ./
+
+
+#- name: Apply PSU
+#  become_user: oracle
+#  action: shell export ORACLE_HOME={{ ORACLE_HOME }};export PATH=$ORACLE_HOME/OPatch:$PATH; cd /home/oracle/27726471; {{ORACLE_HOME}}/OPatch/opatch napply -silent

@@ -1,0 +1,7 @@
+---
+- name: Install netca
+  become_user: oracle
+  command: "{{ oracle_home }}/bin/netca -silent -responseFile /tmp/netca12102.rsp.j2"
+
+  #command: "{{ oracle_home }}/bin/netca -silent -responseFile {{ installation_folder }}/netca12102.rsp.j2"
+

@@ -1,0 +1,5 @@
+---
+- name: Install dbca
+  become_user: oracle
+  command: "{{ oracle_home }}/bin/dbca -silent -responseFile /tmp/{{ groupname }}_{{ version }}dbca.rsp"
+
